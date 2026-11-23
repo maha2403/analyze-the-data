@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analyze the Data | DataInsight</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='dashboard.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span class="logo-icon">A</span>
+            <h2>Data<span>Insight</span></h2>
+        </div>
+
+        <p class="menu-heading">MAIN MENU</p>
+
+        <a href="/" class="menu-item active">
+            <span>▦</span> Dashboard
+        </a>
+
+        <a href="#upload-section" class="menu-item">
+            <span>⇧</span> Upload Dataset
+        </a>
+
+        <a href="#analysis-section" class="menu-item">
+            <span>◷</span> Data Analysis
+        </a>
+
+        <a href="#preview-section" class="menu-item">
+            <span>▤</span> Data Preview
+        </a>
+
+        <div class="sidebar-bottom">
+            <p>DATA ANALYTICS</p>
+            <small>Analyze • Discover • Understand</small>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <div>
+                <h2>Dashboard</h2>
+                <p>Welcome to your data analytics workspace.</p>
+            </div>
+
+            <div class="profile">
+                <div class="avatar">MA</div>
+                <span>Analytics User</span>
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME SECTION -->
+        <section class="welcome-section">
+
+            <div>
+                <p class="welcome-label">
+                    DATA ANALYTICS PLATFORM
+                </p>
+
+                <h1>Analyze Your Data</h1>
+
+                <p>
+                    Transform your raw dataset into meaningful insights
+                    with powerful data analysis and visualization.
+                </p>
+            </div>
+
+            <div class="welcome-icon">📊</div>
+
+        </section>
+
+
+        <!-- UPLOAD DATASET -->
+        <section class="upload-section" id="upload-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Upload Dataset</h2>
+                    <p>Upload your CSV file to begin analysis.</p>
+                </div>
+            </div>
+
+            <form action="/" method="POST"
+                  enctype="multipart/form-data"
+                  id="uploadForm">
+
+                <div class="upload-box" id="dropArea">
+
+                    <div class="upload-icon">☁️</div>
+
+                    <h3>Upload Your Dataset</h3>
+
+                    <p>Drag and drop your CSV file here</p>
+
+                    <label for="dataset" class="choose-btn">
+                        Choose CSV File
+                    </label>
+
+                    <input
+                        type="file"
+                        name="dataset"
+                        id="dataset"
+                        accept=".csv"
+                        required
+                    >
+
+                    <p class="file-name" id="fileName">
+                        Maximum file size: 10 MB
+                    </p>
+
+                </div>
+
+                <button type="submit" class="analyze-btn">
+                    Analyze Dataset →
+                </button>
+
+            </form>
+
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+        </section>
+
+
+        {% if data %}
+
+        <!-- DATASET OVERVIEW -->
+        <section class="stats-section" id="analysis-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Dataset Overview</h2>
+                    <p>Key information about your uploaded dataset.</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card blue">
+
+                    <div class="stat-icon">▤</div>
+
+                    <p>Total Rows</p>
+
+                    <h2>{{ data.rows }}</h2>
+
+                    <small>Records available</small>
+
+                </div>
+
+
+                <div class="stat-card purple">
+
+                    <div class="stat-icon">▦</div>
+
+                    <p>Total Columns</p>
+
+                    <h2>{{ data.columns }}</h2>
+
+                    <small>Features available</small>
+
+                </div>
+
+
+                <div class="stat-card orange">
+
+                    <div class="stat-icon">⚠</div>
+
+                    <p>Missing Values</p>
+
+                    <h2>{{ data.missing }}</h2>
+
+                    <small>Empty data cells</small>
+
+                </div>
+
+
+                <div class="stat-card green">
+
+                    <div class="stat-icon">✓</div>
+
+                    <p>Dataset Status</p>
+
+                    <h2>Ready</h2>
+
+                    <small>Analysis completed</small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DATA VISUALIZATION -->
+        <section class="chart-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Data Visualization</h2>
+                    <p>{{ data.chart_title }}</p>
+                </div>
+            </div>
+
+            {% if data.chart_labels %}
+
+                <div class="chart-card">
+                    <canvas id="analysisChart"></canvas>
+                </div>
+
+            {% else %}
+
+                <div class="empty-chart">
+                    No numeric columns available for chart generation.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- NUMERICAL ANALYSIS -->
+        <section class="analysis-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Numerical Analysis</h2>
+                    <p>Statistical summary of numeric columns.</p>
+                </div>
+            </div>
+
+            {% if data.statistics %}
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Mean</th>
+                                <th>Median</th>
+                                <th>Minimum</th>
+                                <th>Maximum</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for column, values in data.statistics.items() %}
+
+                                <tr>
+                                    <td>{{ column }}</td>
+                                    <td>{{ values.mean }}</td>
+                                    <td>{{ values.median }}</td>
+                                    <td>{{ values.minimum }}</td>
+                                    <td>{{ values.maximum }}</td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-chart">
+                    No numeric columns found in this dataset.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- MISSING VALUE ANALYSIS -->
+        <section class="analysis-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Missing Value Analysis</h2>
+                    <p>Check missing values in each column.</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Column Name</th>
+                            <th>Missing Values</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for column, count in data.missing_values.items() %}
+
+                            <tr>
+                                <td>{{ column }}</td>
+                                <td>{{ count }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- COLUMN INFORMATION -->
+        <section class="analysis-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Column Information</h2>
+                    <p>Explore column names and data types.</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Column Name</th>
+                            <th>Data Type</th>
+                            <th>Missing Values</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for column in data.column_info %}
+
+                            <tr>
+                                <td>{{ column.name }}</td>
+                                <td>{{ column.type }}</td>
+                                <td>{{ column.missing }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- DATASET PREVIEW -->
+        <section class="analysis-section" id="preview-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Dataset Preview</h2>
+                    <p>First 10 records from your uploaded dataset.</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            {% for column in data.column_info %}
+
+                                <th>{{ column.name }}</th>
+
+                            {% endfor %}
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for row in data.preview %}
+
+                            <tr>
+
+                                {% for column in data.column_info %}
+
+                                    <td>{{ row[column.name] }}</td>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2026 DataInsight | Analyze the Data Project</p>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+<script>
+
+    // File selection
+
+    const datasetInput = document.getElementById("dataset");
+
+    const fileName = document.getElementById("fileName");
+
+    const uploadForm = document.getElementById("uploadForm");
+
+    const dropArea = document.getElementById("dropArea");
+
+
+    datasetInput.addEventListener("change", function() {
+
+        if (this.files.length > 0) {
+
+            fileName.textContent =
+                "Selected: " + this.files[0].name;
+
+        }
+
+    });
+
+
+    // Form validation
+
+    uploadForm.addEventListener("submit", function(event) {
+
+        if (!datasetInput.files.length) {
+
+            event.preventDefault();
+
+            alert("Please select a CSV file.");
+
+            return;
+
+        }
+
+        const file = datasetInput.files[0];
+
+        if (!file.name.toLowerCase().endsWith(".csv")) {
+
+            event.preventDefault();
+
+            alert("Please upload a CSV file.");
+
+            return;
+
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+
+            event.preventDefault();
+
+            alert("File size must be less than 10 MB.");
+
+        }
+
+    });
+
+
+    // Drag and drop
+
+    dropArea.addEventListener("dragover", function(event) {
+
+        event.preventDefault();
+
+        dropArea.classList.add("drag-active");
+
+    });
+
+
+    dropArea.addEventListener("dragleave", function() {
+
+        dropArea.classList.remove("drag-active");
+
+    });
+
+
+    dropArea.addEventListener("drop", function(event) {
+
+        event.preventDefault();
+
+        dropArea.classList.remove("drag-active");
+
+        const files = event.dataTransfer.files;
+
+        if (files.length > 0) {
+
+            datasetInput.files = files;
+
+            datasetInput.dispatchEvent(
+                new Event("change")
+            );
+
+        }
+
+    });
+
+
+    // Chart.js visualization
+
+    {% if data and data.chart_labels %}
+
+    const labels = {{ data.chart_labels | tojson }};
+
+    const values = {{ data.chart_values | tojson }};
+
+    const chartTitle = {{ data.chart_title | tojson }};
+
+    const chartElement =
+        document.getElementById("analysisChart");
+
+
+    new Chart(chartElement, {
+
+        type: "bar",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label: chartTitle,
+
+                data: values,
+
+                backgroundColor: "#6366f1",
+
+                borderRadius: 7,
+
+                borderSkipped: false
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    enabled: true
+                }
+
+            },
+
+            scales: {
+
+                y: {
+                    beginAtZero: true
+                }
+
+            }
+
+        }
+
+    });
+
+    {% endif %}
+
+
+    // Dashboard loaded
+
+    console.log("DataInsight Dashboard Loaded Successfully!");
+
+</script>
+
+
+<script src="{{ url_for('static', filename='interactions.js') }}"></script>
+
+</body>
+</html>
